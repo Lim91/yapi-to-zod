@@ -1,6 +1,6 @@
 # yapi-to-zod README
 
-通过yapi接口返回的数据生成`zod`接口定义文件
+vscode插件，通过yapi接口返回的数据生成`zod`接口定义文件
 
 ## Features
 
