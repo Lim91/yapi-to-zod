@@ -42,7 +42,7 @@ function countConsecutiveMatchesFromStart(text1: string, text2: string) {
 export default class Yapi2ZodConfig {
 	private static _instance: Yapi2ZodConfig | undefined;
 	private isInitialized = false;
-	private configFileUrlsSet = new Set<Uri>();
+	private configFileUris: Uri[] = [];
 	public projectConfig: IProjectConfig | undefined;
 
 	public static getInstance(): Yapi2ZodConfig {
@@ -67,7 +67,7 @@ export default class Yapi2ZodConfig {
 
 		const fileUris = await this.getConfigFileUris();
 		fileUris.forEach((uri) => {
-			this.configFileUrlsSet.add(uri);
+			this.configFileUris.push(uri);
 		});
 
 		this.isInitialized = true;
@@ -77,13 +77,12 @@ export default class Yapi2ZodConfig {
 	 * 获取最近的一个配置文件Uri
 	 */
 	public async getNearestConfigFileUri(uri?: Uri): Promise<Uri | undefined> {
-		const configFileUrlsSet = this.configFileUrlsSet;
-		if (configFileUrlsSet.size === 0) {
+		const configFileUris = this.configFileUris;
+		if (configFileUris.length === 0) {
 			return undefined;
-		} else if (configFileUrlsSet.size === 1 || !uri) {
-			return [...configFileUrlsSet.values()][0];
+		} else if (configFileUris.length === 1 || !uri) {
+			return configFileUris[0];
 		} else {
-			const configFileUris = [...configFileUrlsSet.values()];
 			// 拿到最近的配置文件路径
 			const { index } = configFileUris.reduce(
 				(pre, cur, curIdx) => {
@@ -135,12 +134,16 @@ export default class Yapi2ZodConfig {
 
 		// prettierConfigWatcher.onDidChange(this.handleFileUri);
 		prettierConfigWatcher.onDidCreate((uri: Uri) => {
-			console.warn('onDidCreate uri', uri);
-			this.configFileUrlsSet.add(uri);
+			console.info('onDidCreate uri', uri);
+			this.configFileUris.push(uri);
 		});
 		prettierConfigWatcher.onDidDelete((uri: Uri) => {
-			console.warn('onDidDelete uri', uri);
-			this.configFileUrlsSet.delete(uri);
+			console.info('onDidDelete uri', uri);
+			this.configFileUris.forEach((configFileUri, index) => {
+				if (configFileUri.fsPath === uri.fsPath) {
+					this.configFileUris.splice(index, 1);
+				}
+			});
 		});
 
 		return prettierConfigWatcher;
