@@ -11,7 +11,6 @@ vscode插件，通过yapi接口返回的数据生成`zod`接口定义文件
 在`设置`=>`扩展`=>`Yapi To Zod`中配置yapi帐号信息
 
 <img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/config.png" width="600" />
-<img src="images/command.png" width="600" />
 
 #### 2、生成配置文件
 
