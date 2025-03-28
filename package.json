@@ -1,0 +1,110 @@
+{
+	"name": "yapi-to-zod",
+	"displayName": "Yapi To Zod",
+	"version": "0.0.2",
+	"private": true,
+	"description": "generate Zod interface definition files through Yapi documentation",
+	"categories": [
+		"Other"
+	],
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/Lim91/yapi-to-zod"
+	},
+	"publisher": "Lim90",
+	"main": "./dist/extension.js",
+	"scripts": {
+		"package:vsix": "vsce package",
+		"vscode:prepublish": "yarn run package",
+		"compile": "yarn run check-types && yarn run lint && node esbuild.js",
+		"watch": "npm-run-all -p watch:*",
+		"watch:esbuild": "node esbuild.js --watch",
+		"watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
+		"package": "yarn run check-types && yarn run lint && node esbuild.js --production",
+		"compile-tests": "tsc -p . --outDir out",
+		"watch-tests": "tsc -p . -w --outDir out",
+		"pretest": "yarn run compile-tests && yarn run compile && yarn run lint",
+		"test": "vscode-test",
+		"check-types": "tsc --noEmit",
+		"lint": "eslint .",
+		"lint:fix": "eslint . --fix",
+		"prepare": "husky install",
+		"markdownlint-fix": "markdownlint-cli2-fix",
+		"sort-package-json": "sort-package-json '**/package.json'"
+	},
+	"contributes": {
+		"commands": [
+			{
+				"command": "extension.newConfigProfile",
+				"title": "YapiToZod: 生成配置文件"
+			},
+			{
+				"command": "extension.newApiTemplate",
+				"title": "YapiToZod: 生成Api声明文件"
+			}
+		],
+		"configuration": {
+			"type": "object",
+			"title": "Yapi To Zod",
+			"properties": {
+				"yapiToZod.email": {
+					"type": "string",
+					"description": "yapi邮箱"
+				},
+				"yapiToZod.password": {
+					"type": "string",
+					"description": "yapi密码"
+				}
+			}
+		},
+		"menus": {
+			"explorer/context": [
+				{
+					"command": "extension.newApiTemplate",
+					"group": "navigation"
+				}
+			],
+			"editor/context": [
+				{
+					"command": "extension.newApiTemplate",
+					"group": "navigation"
+				}
+			]
+		}
+	},
+	"activationEvents": [
+		"extension.newApiTemplate",
+		"extension.newConfigProfile"
+	],
+	"dependencies": {
+		"axios": "^1.8.2"
+	},
+	"devDependencies": {
+		"@commitlint/cli": "^18.6.0",
+		"@commitlint/config-conventional": "^18.6.0",
+		"@types/mocha": "^10.0.10",
+		"@types/node": "20.x",
+		"@types/vscode": "^1.56.0",
+		"@typescript-eslint/eslint-plugin": "^6.3.0",
+		"@typescript-eslint/parser": "^6.3.0",
+		"@vscode/test-cli": "^0.0.10",
+		"@vscode/test-electron": "^2.4.1",
+		"esbuild": "^0.25.0",
+		"eslint": "^8.46.0",
+		"eslint-config-prettier": "^9.0.0",
+		"eslint-define-config": "^1.20.0",
+		"eslint-plugin-prettier": "^5.0.0",
+		"husky": "9.0.11",
+		"lint-staged": "13.2.3",
+		"markdownlint-cli2": "^0.8.1",
+		"npm-run-all": "^4.1.5",
+		"prettier": "^3.5.3",
+		"sort-package-json": "2.5.1",
+		"typescript": "^5.8.2"
+	},
+	"engines": {
+		"node": ">=20.0.0",
+		"vscode": "^1.81.0"
+	},
+	"icon": "dist/assets/logo.png"
+}

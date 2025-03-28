@@ -1,0 +1,17 @@
+#!/usr/bin/env sh
+. "$(dirname -- "$0")/_/husky.sh"
+
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# 获取当前分支
+branch=$(head -n +1 .git/HEAD)
+commitMessage=$(cat $1)
+commitMessageBefore=${commitMessage%:*}
+branchName=${branch##*/}
+commitMessageAfter=${commitMessage#*:}
+
+commit=${commitMessageBefore}"("${branchName}"): "${commitMessageAfter}
+echo "$commit" > "$1"
+
+npx --no-install commitlint --edit "$1"
