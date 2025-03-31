@@ -9,14 +9,15 @@
 			"name": "Run Extension",
 			"type": "extensionHost",
 			"request": "launch",
+			"runtimeExecutable": "${execPath}",
 			"args": [
-				"--disable-extensions,--extensionDevelopmentPath=${workspaceFolder}"
+				"--extensionDevelopmentPath=${workspaceFolder}"
 			],
+			"sourceMaps": true,
 			"outFiles": [
 				"${workspaceFolder}/dist/**/*.js"
 			],
-			"preLaunchTask": "${defaultBuildTask}",
-			"sourceMaps": true
+			"preLaunchTask": "${defaultBuildTask}"
 		}
 	]
 }

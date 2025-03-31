@@ -12,3 +12,9 @@ vsc-extension-quickstart.md
 **/*.map
 **/*.ts
 **/.vscode-test.*
+.prettierrc.js
+commitlint.config.js
+.husky/**
+lint-staged.config.js
+.markdownlint-cli2.cjs
+.prettierignore

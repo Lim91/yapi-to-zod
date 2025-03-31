@@ -1,3 +1,14 @@
+import type { IYapiProjectRes } from '../../api/get-project-detail';
+import type { IYapiResponse } from '../../api/types/yapi-types';
+import Yapi2ZodConfig, { IProjectConfig } from '../../Yapi2ZodConfig';
+import {
+	extractContentInParentheses,
+	isEmptyObject,
+	isObject,
+	toPascalCase,
+} from '../common';
+import { SERVER_URL } from '../constant/yapi';
+import { ResponseKeyEnum } from './config';
 import {
 	AllTypeNode,
 	getModelName,
@@ -9,12 +20,6 @@ import {
 	resFormBody2type,
 	ResObjectBody,
 } from './json2type';
-
-import type { IYapiResponse } from '../../api/types/yapi-types';
-import Yapi2ZodConfig, { IProjectConfig } from '../../Yapi2ZodConfig';
-import { isEmptyObject, toPascalCase } from '../common';
-import { SERVER_URL } from '../constant/yapi';
-import { ResponseKeyEnum } from './config';
 import { parseJson } from './utils';
 
 /**
@@ -86,7 +91,11 @@ type GenRequestOptionsType = {
 	/** 响应数据zod模型名称 */
 	resModelName: string;
 } & IProjectConfig;
-export const genRequest = (data: IYapiResponse, options: GenRequestOptionsType) => {
+export const genRequest = (
+	data: IYapiResponse,
+	options: GenRequestOptionsType,
+	projectData: IYapiProjectRes | undefined,
+) => {
 	const { interfaceName, hasReqDefine, hasResDefine, reqModelName, resModelName } =
 		options;
 	const comment = `/**
@@ -94,6 +103,10 @@ export const genRequest = (data: IYapiResponse, options: GenRequestOptionsType) 
  * @see {@link ${getApiUrl(data)}}
  */`;
 	const defMethodName = `${interfaceName}ApiDef`;
+	// 微服务资源
+	const resource = projectData?.name
+		? extractContentInParentheses(projectData.name)
+		: '';
 
 	if (options?.genRequest) {
 		return options.genRequest(
@@ -103,6 +116,7 @@ export const genRequest = (data: IYapiResponse, options: GenRequestOptionsType) 
 				apiPath: data?.path,
 				reqModelName: hasReqDefine ? reqModelName : undefined,
 				resModelName: hasResDefine ? resModelName : undefined,
+				resource,
 			},
 			data,
 		);
@@ -113,7 +127,7 @@ export const ${defMethodName} = BizRemoteRequestApiDef.url(
   '${data.path}',
 )
   .method('${data.method}')
-  .custom({ version: 'v2', service: '' })${
+  .custom({ version: 'v2', service: '${resource}' })${
 		hasReqDefine
 			? `
   .data(${reqModelName})`
@@ -143,7 +157,10 @@ export const getApiUrl = (data: IYapiResponse) => {
 /**
  * @description 数据转类型
  */
-export async function data2Type(data: IYapiResponse) {
+export async function data2Type(
+	data: IYapiResponse,
+	projectData: IYapiProjectRes | undefined,
+) {
 	const yapi2ZodConfig = Yapi2ZodConfig.getInstance();
 	const projectConfig = yapi2ZodConfig.projectConfig;
 	const { responseKey, responseCustomKey } = projectConfig || {};
@@ -189,15 +206,14 @@ export async function data2Type(data: IYapiResponse) {
 		isReturnResDataProp && ResponseKeyEnum.DATA === responseKey
 			? responseKey
 			: responseCustomKey || 'data';
-
-	const resBodyDataType = Object.keys(
-		(getNestData(parseResBody, dataKey) as ResObjectBody).properties,
-	).length
-		? `${formatInterfaceComment(data, '响应体')}\n${resBodySubProp2type(
-				resModelName,
-				getNestData(parseResBody, dataKey),
-			)}`
-		: '';
+	const nestData = getNestData(parseResBody, dataKey) as ResObjectBody;
+	const resBodyDataType =
+		isObject(nestData?.properties) && Object.keys(nestData.properties).length
+			? `${formatInterfaceComment(data, '响应体')}\n${resBodySubProp2type(
+					resModelName,
+					nestData,
+				)}`
+			: '';
 
 	const resDefine = isReturnResDataProp ? resBodyDataType : resBodyType;
 
@@ -218,14 +234,18 @@ export async function data2Type(data: IYapiResponse) {
 
 	const header = genHeader(projectConfig);
 
-	const requestContent = genRequest(data, {
-		interfaceName,
-		hasReqDefine: !!reqDefine,
-		hasResDefine: !!resDefine,
-		reqModelName,
-		resModelName,
-		...projectConfig,
-	});
+	const requestContent = genRequest(
+		data,
+		{
+			interfaceName,
+			hasReqDefine: !!reqDefine,
+			hasResDefine: !!resDefine,
+			reqModelName,
+			resModelName,
+			...projectConfig,
+		},
+		projectData,
+	);
 
 	return {
 		header,

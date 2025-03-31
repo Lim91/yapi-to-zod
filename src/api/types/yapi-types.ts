@@ -89,23 +89,6 @@ export enum QueryStringArrayFormat {
 	'json' = 'json',
 }
 
-// export interface IResBody {
-//   $schema: string;
-//   properties: {
-//     code: {
-//       default: string;
-//       type: string;
-//     };
-//     data: {
-//       type: string;
-
-//     };
-//     msg:
-//   }
-//   required: string[];
-//   type: string;
-// }
-
 /** 接口定义 */
 export interface IYapiResponse {
 	type: string;

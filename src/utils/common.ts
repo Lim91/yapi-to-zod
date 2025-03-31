@@ -69,3 +69,21 @@ export function isEmptyObject(arg: unknown): arg is Record<PropertyKey, never> {
 	// eslint-disable-next-line @typescript-eslint/ban-types
 	return isObject(arg) && !Object.keys(arg as object).length;
 }
+
+/**
+ * 提取最后一个括号里的内容
+ */
+export function extractContentInParentheses(text: string): string {
+	// 匹配最后一个英文括号 () 或中文括号 （）中的内容
+	const regex = /[(（][^)）]*[)）]/g;
+	const matches = text.match(regex);
+
+	// 匹配英文括号 () 或中文括号 （）
+	if (matches && matches.length > 0) {
+		// 提取最后一个匹配项，并去掉括号
+		const lastMatch = matches[matches.length - 1];
+		return lastMatch.slice(1, lastMatch.length - 1);
+	}
+
+	return '';
+}

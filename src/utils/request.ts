@@ -100,7 +100,7 @@ const yapiRequest = {
 					}
 
 					const msg = '登录失败';
-					console.info(msg, error);
+					console.error(msg, error);
 					showErrMsg(msg);
 					return Promise.reject(error);
 				})

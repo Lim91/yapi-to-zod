@@ -7,11 +7,17 @@ export interface IProjectConfig {
 	header?: string[];
 	genRequest?(
 		formData: {
+			/** 注释 */
 			comment: string;
+			/** 接口名称，大驼峰格式 */
 			interfaceName: string;
 			apiPath: string;
+			/** 请求数据变量名 */
 			reqModelName?: string;
+			/** 响应数据变量名 */
 			resModelName?: string;
+			/** 微服务名称 */
+			resource: string;
 		},
 		data: IYapiResponse,
 	): string;

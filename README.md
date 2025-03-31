@@ -19,30 +19,33 @@ vscode插件，通过yapi接口返回的数据生成`zod`接口定义文件
 
 <img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/command.png" width="600" />
 
-
 <br />
 
 配置文件`.yapi-to-zod.js`内容：
 
-``` js
+```js
 module.exports = () => {
- return {
-  /** 头部内容，可以填写导入的请求实例等 */
-  header: [],
-  /**
-   * 生成请求内容
-   * @param {object} param0
-   * @param {string} param0.comment 注释内容
-   * @param {string} param0.interfaceName 接口名，大驼峰
-   * @param {string | undefined} reqModelName 请求参数模型名
-   * @param {string | undefined} resModelName 返回数据模型名
-   * @param {string} param0.apiPath 接口路径
-   * @param {object} yapiData
-   */
-  genRequest({comment, interfaceName, hasReqDefine, hasResDefine, apiPath}, yapiData) {
-   //
-  }
- };
+	return {
+		/** 头部内容，可以填写导入的请求实例等 */
+		header: [],
+		/**
+		 * 生成请求内容
+		 * @param {object} param0
+		 * @param {string} param0.comment 注释内容
+		 * @param {string} param0.interfaceName 接口名，大驼峰
+		 * @param {string | undefined} param0.reqModelName 请求参数模型名
+		 * @param {string | undefined} param0.resModelName 返回数据模型名
+		 * @param {string} param0.apiPath 接口路径
+		 * @param {string} param0.resource 微服务名称
+		 * @param {object} yapiData 接口数据
+		 */
+		genRequest(
+			{ comment, interfaceName, hasReqDefine, hasResDefine, apiPath },
+			yapiData,
+		) {
+			//
+		},
+	};
 };
 ```
 
@@ -52,7 +55,7 @@ module.exports = () => {
 
 <img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/create-api-file.png" width="400" />
 
-填入接口id，回车创建接口声明文件
+填入接口路径，回车创建接口声明文件
 
-<img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/image-20250328103211574.png" width="500" />
-<img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/image-20250328103425909.png" width="500" />
+<img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/image-20250331100236952.png" width="500" />
+<img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/image-20250331100341764.png" width="500" />

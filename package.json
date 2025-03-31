@@ -1,7 +1,7 @@
 {
 	"name": "yapi-to-zod",
 	"displayName": "Yapi To Zod",
-	"version": "0.0.2",
+	"version": "0.1.2",
 	"private": true,
 	"description": "generate Zod interface definition files through Yapi documentation",
 	"categories": [
@@ -18,7 +18,7 @@
 		"vscode:prepublish": "yarn run package",
 		"compile": "yarn run check-types && yarn run lint && node esbuild.js",
 		"watch": "npm-run-all -p watch:*",
-		"watch:esbuild": "node esbuild.js --watch",
+		"watch:esbuild": "node esbuild.js --watch --development",
 		"watch:tsc": "tsc --noEmit --watch --project tsconfig.json",
 		"package": "yarn run check-types && yarn run lint && node esbuild.js --production",
 		"compile-tests": "tsc -p . --outDir out",
@@ -106,5 +106,5 @@
 		"node": ">=20.0.0",
 		"vscode": "^1.81.0"
 	},
-	"icon": "dist/assets/logo.png"
+	"icon": "images/logo.png"
 }
