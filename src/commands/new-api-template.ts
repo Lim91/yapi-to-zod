@@ -41,13 +41,13 @@ function convertUnderscoreToHyphen(input: string): string {
 
 async function generateCode(uri: Uri): Promise<void> {
 	const urlPath = await window.showInputBox({
-		title: '请输入接口文档路径',
+		title: '请输入接口文档地址',
 		ignoreFocusOut: true,
 	});
 
 	if (!urlPath) {
 		if (urlPath === '') {
-			showErrMsg('请输入接口文档路径');
+			showErrMsg('请输入接口文档地址');
 		}
 		return;
 	}

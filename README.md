@@ -55,7 +55,7 @@ module.exports = () => {
 
 <img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/create-api-file.png" width="400" />
 
-填入接口路径，回车创建接口声明文件
+填入接口文档地址，回车创建接口声明文件
 
 <img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/image-20250331100236952.png" width="500" />
 <img src="https://gitee.com/limya/pico-imgs/raw/master/imgs/image-20250331100341764.png" width="500" />
