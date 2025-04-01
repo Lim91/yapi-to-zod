@@ -30,7 +30,8 @@
 		"lint:fix": "eslint . --fix",
 		"prepare": "husky install",
 		"markdownlint-fix": "markdownlint-cli2-fix",
-		"sort-package-json": "sort-package-json '**/package.json'"
+		"sort-package-json": "sort-package-json '**/package.json'",
+		"postinstall": "run-p prepare"
 	},
 	"contributes": {
 		"commands": [
