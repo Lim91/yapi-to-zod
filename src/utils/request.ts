@@ -60,87 +60,86 @@ instance.interceptors.response.use(
 	},
 );
 
-const yapiRequest = {
-	get<T>(path: string, params?: AxiosRequestConfig['params']) {
-		return this.request<T>({
-			method: 'GET',
-			url: path,
-			params,
-		});
-	},
-	post<T>(path: string, data?: AxiosRequestConfig['data']) {
-		return this.request<T>({
-			method: 'POST',
-			url: path,
-			data,
-		});
-	},
+async function request<T>(config: AxiosRequestConfig): Promise<AxiosResponseType<T>> {
+	const { url } = config;
 
-	request: async <T>(config: AxiosRequestConfig): Promise<AxiosResponseType<T>> => {
-		const { url } = config;
+	const isLoginPath = url?.includes(LOGIN_PATH); // 是否是登录接口
+	if (isLoginPath) {
+		return instance
+			.request<T, AxiosResponseType<T>>(config)
+			.then(async (res) => {
+				if (res.errcode !== 0) return Promise.reject();
 
-		const isLoginPath = url?.includes(LOGIN_PATH); // 是否是登录接口
-		if (isLoginPath) {
-			return instance
-				.request<T, AxiosResponseType<T>>(config)
-				.then(async (res) => {
-					if (res.errcode !== 0) return Promise.reject();
+				isLoggingIn = false;
+				console.info('登录成功', res);
+				for (const resolve of requestPool) {
+					resolve(true);
+				}
+				return res;
+			})
+			.catch((error) => {
+				isLoggingIn = false;
+				for (const resolve of requestPool) {
+					resolve(false);
+				}
 
-					isLoggingIn = false;
-					console.info('登录成功', res);
-					for (const resolve of requestPool) {
-						resolve(true);
-					}
-					return res;
-				})
-				.catch((error) => {
-					isLoggingIn = false;
-					for (const resolve of requestPool) {
-						resolve(false);
-					}
+				const msg = '登录失败';
+				console.error(msg, error);
+				showErrMsg(msg);
+				return Promise.reject(error);
+			})
+			.finally(() => {
+				requestPool = [];
+			});
+	}
 
-					const msg = '登录失败';
-					console.error(msg, error);
-					showErrMsg(msg);
-					return Promise.reject(error);
-				})
-				.finally(() => {
-					requestPool = [];
-				});
+	// 判断是否存在cookie
+	const hasLoginCookie = !!storage.getStorage<string>(AllStorageType.COOKIE);
+	const email = Yapi2ZodConfig.getPluginConfiguration('email');
+	const password = Yapi2ZodConfig.getPluginConfiguration('password');
+	if (!email || !password) {
+		const msg = '请先配置邮箱和密码';
+		showErrMsg(msg);
+		return Promise.reject(msg);
+	}
+
+	// 正在登录...
+	if (isLoggingIn || !hasLoginCookie) {
+		return pushToRequestPool<T>(config, { email, password });
+	}
+
+	const response = await instance.request<T, AxiosResponseType<T>>(config);
+	const errcode = response?.errcode;
+	if (errcode === 40011) {
+		return pushToRequestPool<T>(config, { email, password });
+	}
+	if (errcode !== 0) {
+		let msg = '请求失败';
+		if (errcode === 490) {
+			msg = '接口id不存在';
 		}
+		showErrMsg(msg);
+		return Promise.reject(msg);
+	}
 
-		// 判断是否存在cookie
-		const hasLoginCookie = !!storage.getStorage<string>(AllStorageType.COOKIE);
-		const email = Yapi2ZodConfig.getPluginConfiguration('email');
-		const password = Yapi2ZodConfig.getPluginConfiguration('password');
-		if (!email || !password) {
-			const msg = '请先配置邮箱和密码';
-			showErrMsg(msg);
-			return Promise.reject(msg);
-		}
+	return response;
+}
 
-		// 正在登录...
-		if (isLoggingIn || !hasLoginCookie) {
-			return pushToRequestPool<T>(config, { email, password });
-		}
+function get<T>(path: string, params?: AxiosRequestConfig['params']) {
+	return request<T>({
+		method: 'GET',
+		url: path,
+		params,
+	});
+}
 
-		const response = await instance.request<T, AxiosResponseType<T>>(config);
-		const errcode = response?.errcode;
-		if (errcode === 40011) {
-			return pushToRequestPool<T>(config, { email, password });
-		}
-		if (errcode !== 0) {
-			let msg = '请求失败';
-			if (errcode === 490) {
-				msg = '接口id不存在';
-			}
-			showErrMsg(msg);
-			return Promise.reject(msg);
-		}
-
-		return response;
-	},
-};
+function post<T>(path: string, data?: AxiosRequestConfig['data']) {
+	return request<T>({
+		method: 'POST',
+		url: path,
+		data,
+	});
+}
 
 // 将请求推入请求池并返回一个 Promise
 const pushToRequestPool = <T>(
@@ -157,8 +156,8 @@ const pushToRequestPool = <T>(
 		if (!status) {
 			return Promise.reject();
 		}
-		return yapiRequest.request<T>(config);
+		return request<T>(config);
 	});
 };
 
-export default yapiRequest;
+export { get, post };

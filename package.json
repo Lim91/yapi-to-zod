@@ -31,7 +31,8 @@
 		"prepare": "husky install",
 		"markdownlint-fix": "markdownlint-cli2-fix",
 		"sort-package-json": "sort-package-json '**/package.json'",
-		"postinstall": "run-p prepare"
+		"postinstall": "run-p prepare",
+		"precommit-check": "lint-staged & tsc --noEmit"
 	},
 	"contributes": {
 		"commands": [

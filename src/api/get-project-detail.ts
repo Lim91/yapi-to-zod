@@ -1,10 +1,10 @@
-import yapiRequest from '../utils/request';
+import { get } from '../utils/request';
 
 export interface IYapiProjectRes {
 	name?: string;
-	[key: PropertyKey]: any;
+	[key: PropertyKey]: unknown;
 }
 
 export async function getProjectDetail(id: string) {
-	return yapiRequest.get<IYapiProjectRes>('/api/project/get', { id });
+	return get<IYapiProjectRes>('/api/project/get', { id });
 }
